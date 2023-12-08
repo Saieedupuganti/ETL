@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 20px auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 30px;
+        }
+
+        input[type="file"] {
+            display: none;
+            background-color: #d3d3d3; 
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        label {
+            display: inline-block;
+            background-color: blue;
+            color: #fff;
+            padding: 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .file-list {
+            display: none;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 15px; 
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: calc(100% - 20px);
+            font-size: 20px; 
+            margin-top: 10px; 
+        }
+
+        .delete-icon {
+            cursor: pointer;
+            margin-left: 8px;
+            color: red; 
+            font-size: 30px;
+        }
+
+    </style>
+    <title>Upload CSV Files</title>
+</head>
+<body>
+    <form action="/settings" method="post" enctype="multipart/form-data" onsubmit="return showFileNames('dataFileInput', 'dataFileList', 'refFileInput', 'refFileList')">
+        <h1>Upload CSV Files</h1>
+        
+        <label for="dataFileInput">Choose Data File</label>
+        <input type="file" name="dataFile" accept=".csv,.xlsx" required id="dataFileInput">
+
+        <label for="refFileInput">Choose Reference File</label>
+        <input type="file" name="refFile" accept=".csv,.xlsx" required id="refFileInput">
+
+        <div id="dataFileList" class="file-list"></div>
+        <div id="refFileList" class="file-list"></div>
+
+        <button type="submit">Map</button>
+
+        <script>
+            function showFileNames(dataFileInputId, dataFileListId, refFileInputId, refFileListId) {
+                var dataInput = document.getElementById(dataFileInputId);
+                var dataFileList = document.getElementById(dataFileListId);
+                dataFileList.innerHTML = '';
+
+                var refInput = document.getElementById(refFileInputId);
+                var refFileList = document.getElementById(refFileListId);
+                refFileList.innerHTML = '';
+
+                for (var i = 0; i < dataInput.files.length; i++) {
+                    var fileName = dataInput.files[i].name;
+                    var listItem = document.createElement('div');
+
+                    // Create a span for the file name
+                    var fileNameSpan = document.createElement('span');
+                    fileNameSpan.textContent = fileName;
+                    listItem.appendChild(fileNameSpan);
+
+                    // Create a delete icon (using the "trash" icon)
+                    var deleteIcon = document.createElement('span');
+                    deleteIcon.innerHTML = '&#128465;'; // "trash" icon HTML entity
+                    deleteIcon.className = 'delete-icon';
+                    deleteIcon.addEventListener('click', createDeleteHandler(dataInput.files[i], listItem));
+                    listItem.appendChild(deleteIcon);
+
+                    dataFileList.appendChild(listItem);
+
+                    listItem.style.display = 'flex';
+                    listItem.style.justifyContent = 'space-between';
+                    listItem.style.alignItems = 'center';
+                    listItem.style.marginBottom = '8px';
+                }
+
+                for (var j = 0; j < refInput.files.length; j++) {
+                    var refFileName = refInput.files[j].name;
+                    var refListItem = document.createElement('div');
+
+                    // Create a span for the file name
+                    var refFileNameSpan = document.createElement('span');
+                    refFileNameSpan.textContent = refFileName;
+                    refListItem.appendChild(refFileNameSpan);
+
+                    // Create a delete icon (using the "trash" icon)
+                    var refDeleteIcon = document.createElement('span');
+                    refDeleteIcon.innerHTML = '&#128465;'; // "trash" icon HTML entity
+                    refDeleteIcon.className = 'delete-icon';
+                    refDeleteIcon.addEventListener('click', createDeleteHandler(refInput.files[j], refListItem));
+                    refListItem.appendChild(refDeleteIcon);
+
+                    refFileList.appendChild(refListItem);
+
+                    refListItem.style.display = 'flex';
+                    refListItem.style.justifyContent = 'space-between';
+                    refListItem.style.alignItems = 'center';
+                    refListItem.style.marginBottom = '8px';
+                }
+
+                dataFileList.style.display = 'block';
+                refFileList.style.display = 'block';
+                return true;
+            }
+
+            // Function to create a delete handler
+            function createDeleteHandler(file, listItem) {
+                return function () {
+                    var input;
+                    var fileList;
+
+                    if (file.name.includes("data")) {
+                        input = document.getElementById('dataFileInput');
+                        fileList = document.getElementById('dataFileList');
+                    } else {
+                        input = document.getElementById('refFileInput');
+                        fileList = document.getElementById('refFileList');
+                    }
+
+                    // Remove the file from the input
+                    var index = Array.from(input.files).indexOf(file);
+                    if (index > -1) {
+                        input.files = Array.from(input.files).filter((_, i) => i !== index);
+                    }
+
+                    // Remove the list item
+                    listItem.remove();
+                };
+            }
+        </script>
+    </form>
+</body>
+</html>

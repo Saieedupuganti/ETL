@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fill NaN Values</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .scrolling-container {
+            height: 550px; 
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 300px;
+        }
+
+        input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color:#4c63af;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: auto;
+            
+        }
+        .accordion {
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .accordion-item {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background-color: #9fa39f;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-content {
+            padding: 10px;
+            display: none; 
+        }
+        
+        .accordion-item:not(:last-child) {
+            padding-bottom: 10px;
+        }
+        .each_inp{
+            width: 100%;
+            margin: 10px;
+            display: flex;
+            justify-content: space-between;
+            margin-left: 10px;
+        }
+        .each_inp>input{
+            width: 48%; 
+        }
+        .left_element{
+            flex-grow: 1;
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>Fill NaN Values</h1>
+    <form action="/fill_nan" method="post" class="accordion" id="fileForm">
+        {% for index in data %}
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion('accordion-content-{{index}}')">
+                <h2>{{ data[index]['filename'] }}</h2>
+                <input name="filename_{{ index|replace(' ', '') }}" value="{{ data[index]['filename'] }}" style="display: none;">
+                <input type="hidden" id="selectedFilename" name="selected_filename" value="">
+                <button type="button" onclick="downloadFile('{{ data[index]['filename'] }}')">&#x2193; </button>
+            </div>
+            <div class="accordion-content" id="accordion-content-{{index}}">
+                <div class="scrolling-container" style="text-align: left;">
+                    {% for colname in data[index]['columns'] %}
+                        <div class="each_inp" >
+                            <div class="left_element">
+                                <label for="col_{{index|replace(' ', '')}}_{{ colname }}">{{ colname }}</label>
+                            </div>
+                            <div class="right_element">
+                                <input type="text" name="col_{{index|replace(' ', '')}}_{{ colname }}">
+                            </div>
+                            <br>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>   
+        </div>
+        {% endfor %}
+    
+        <button type="submit">Download All Files</button>
+    </form>
+    
+
+    <script>
+        function toggleAccordion(accordionId) {
+            var accordionContent = document.getElementById(accordionId);
+            accordionContent.style.display = accordionContent.style.display === 'none' ? 'block' : 'none';
+        }
+    
+        function downloadFile(filename) {
+            var form = document.getElementById('fileForm');
+            // Set the selected filename in the hidden input
+            document.getElementById('selectedFilename').value = filename;
+            form.action = '/download_file'; // Set the action to the appropriate endpoint
+            form.submit();
+        }
+    </script>
+    
+</body>
+</html>
